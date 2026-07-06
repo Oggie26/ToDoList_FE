@@ -23,18 +23,18 @@ const TodoForm: React.FC<TodoFormProps> = ({ onSubmit, editingTodo, onCancelEdit
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [targetDate, setTargetDate] = useState(getDefaultDateTime(selectedDate));
+  const [dueDate, setDueDate] = useState(getDefaultDateTime(selectedDate));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (editingTodo) {
       setTitle(editingTodo.title);
       setDescription(editingTodo.description || '');
-      setTargetDate(editingTodo.targetDate || getDefaultDateTime(selectedDate));
+      setDueDate(editingTodo.dueDate || getDefaultDateTime(selectedDate));
     } else {
       setTitle('');
       setDescription('');
-      setTargetDate(getDefaultDateTime(selectedDate));
+      setDueDate(getDefaultDateTime(selectedDate));
     }
   }, [editingTodo, selectedDate]);
 
@@ -49,7 +49,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ onSubmit, editingTodo, onCancelEdit
         description: description.trim() || undefined,
         completed: editingTodo ? editingTodo.completed : false,
         status: editingTodo ? editingTodo.status : 'TODO',
-        targetDate: targetDate || undefined,
+        dueDate: dueDate || undefined,
       });
       if (!editingTodo) {
         setTitle('');
@@ -108,8 +108,8 @@ const TodoForm: React.FC<TodoFormProps> = ({ onSubmit, editingTodo, onCancelEdit
             <label className="block text-sm font-semibold text-slate-700 mb-2">Thời gian thực hiện</label>
             <input
               type="datetime-local"
-              value={targetDate}
-              onChange={(e) => setTargetDate(e.target.value)}
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all outline-none"
               disabled={isSubmitting}
             />

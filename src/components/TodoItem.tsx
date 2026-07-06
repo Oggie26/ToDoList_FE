@@ -28,6 +28,7 @@ const colors = [
 const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, isPast, isPastTime }) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const isCompleted = todo.status === 'COMPLETED' || todo.completed;
   const colorClass = colors[todo.id % colors.length];
 
   const handleDelete = () => {
@@ -39,19 +40,19 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, i
     <div
       className={cn(
         'group flex flex-col p-5 mb-4 rounded-3xl border shadow-sm transition-all duration-300 relative overflow-hidden',
-        todo.completed ? 'opacity-60 grayscale-[50%]' : '',
+        isCompleted ? 'opacity-60 grayscale-[50%]' : '',
         colorClass,
         isDeleting && 'opacity-0 scale-95 pointer-events-none'
       )}
     >
       <div className="flex flex-col mb-2">
-        <h3 className={cn("text-lg font-bold pr-8", todo.completed && "line-through opacity-70")}>
+        <h3 className={cn("text-lg font-bold pr-8", isCompleted && "line-through opacity-70")}>
           {todo.title}
         </h3>
       </div>
 
       {todo.description && (
-        <p className={cn("text-sm opacity-80 leading-relaxed mb-4", todo.completed && "line-through")}>
+        <p className={cn("text-sm opacity-80 leading-relaxed mb-4", isCompleted && "line-through")}>
           {todo.description}
         </p>
       )}
@@ -60,28 +61,28 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, i
         <div className="flex items-center gap-2">
           {/* Button Hoàn thành */}
           <button
-            onClick={() => !isPast && !todo.completed && onToggle(todo.id, false)}
-            disabled={isPast || todo.completed}
+            onClick={() => !isPast && !isCompleted && onToggle(todo.id, false)}
+            disabled={isPast || isCompleted}
             className={cn(
               'text-xs font-bold px-4 py-2 rounded-full transition-all flex items-center gap-1.5',
-              todo.completed
+              isCompleted
                 ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
                 : 'bg-white/60 text-slate-600 hover:bg-white',
-              isPast && !todo.completed ? 'opacity-40 cursor-not-allowed' : ''
+              isPast && !isCompleted ? 'opacity-40 cursor-not-allowed' : ''
             )}
           >
             <Check size={14} /> Hoàn thành
           </button>
 
           <button
-            onClick={() => !isPast && todo.completed && onToggle(todo.id, true)}
-            disabled={isPast || !todo.completed}
+            onClick={() => !isPast && isCompleted && onToggle(todo.id, true)}
+            disabled={isPast || !isCompleted}
             className={cn(
               'text-xs font-bold px-4 py-2 rounded-full transition-all',
-              !todo.completed
+              !isCompleted
                 ? (isPast ? 'bg-red-100 text-red-600 border border-red-200 opacity-60' : 'bg-rose-500 text-white shadow-md shadow-rose-500/30')
                 : 'bg-white/60 text-slate-600 hover:bg-white',
-              isPast && todo.completed ? 'opacity-40 cursor-not-allowed' : ''
+              isPast && isCompleted ? 'opacity-40 cursor-not-allowed' : ''
             )}
           >
             Chưa hoàn thành

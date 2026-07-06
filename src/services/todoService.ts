@@ -4,19 +4,19 @@ export type TodoStatus = 'TODO' | 'IN_PROGRESS' | 'COMPLETED';
 export interface TodoRequest {
   title: string;
   description?: string;
-  completed: boolean;
+  completed?: boolean; // Keep for backward compatibility if needed, or remove
   status: TodoStatus;
-  targetDate?: string;
+  dueDate?: string;
 }
 
 export interface TodoResponse {
   id: number;
   title: string;
   description?: string;
-  completed: boolean;
   status: TodoStatus;
-  targetDate?: string;
+  dueDate?: string;
   createdAt: string;
+  isOverdue?: boolean;
 }
 
 export interface ApiResponse<T> {

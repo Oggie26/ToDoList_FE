@@ -147,7 +147,7 @@ const TodoList: React.FC = () => {
   };
 
   const filteredTodos = todos.filter(t => {
-    const tDate = getVNDateString(t.targetDate || t.createdAt);
+    const tDate = getVNDateString(t.dueDate || t.createdAt);
     return tDate === selectedDate;
   });
 
@@ -171,7 +171,7 @@ const TodoList: React.FC = () => {
         <div className="flex justify-between items-center mb-10 px-1">
           {getDaysOfWeek(selectedDate).map((item, idx) => {
             const taskCount = todos.filter(t => {
-              const tDate = getVNDateString(t.targetDate || t.createdAt);
+              const tDate = getVNDateString(t.dueDate || t.createdAt);
               return tDate === item.fullDate;
             }).length;
 
@@ -209,9 +209,9 @@ const TodoList: React.FC = () => {
         ) : (
           <div className="relative border-l-2 border-dashed border-slate-300 ml-4 mt-6">
             {filteredTodos
-              .sort((a, b) => getVNTime(a.targetDate || a.createdAt).getTime() - getVNTime(b.targetDate || b.createdAt).getTime())
+              .sort((a, b) => getVNTime(a.dueDate || a.createdAt).getTime() - getVNTime(b.dueDate || b.createdAt).getTime())
               .map((todo) => {
-                const currentTaskTime = getVNTime(todo.targetDate || todo.createdAt);
+                const currentTaskTime = getVNTime(todo.dueDate || todo.createdAt);
                 
                 const currentHour = currentTaskTime.getUTCHours();
                 const minutes = currentTaskTime.getUTCMinutes().toString().padStart(2, '0');
@@ -220,10 +220,10 @@ const TodoList: React.FC = () => {
                 const timeString = `${hour12}:${minutes} ${period}`;
                 
                 const todayStr = getVNDateString(new Date().toISOString());
-                const taskDateStr = getVNDateString(todo.targetDate || todo.createdAt);
+                const taskDateStr = getVNDateString(todo.dueDate || todo.createdAt);
                 const isPast = taskDateStr < todayStr;
                 
-                const realUtcStr = typeof (todo.targetDate || todo.createdAt) === 'string' && !(todo.targetDate || todo.createdAt).endsWith('Z') ? (todo.targetDate || todo.createdAt) + 'Z' : (todo.targetDate || todo.createdAt);
+                const realUtcStr = typeof (todo.dueDate || todo.createdAt) === 'string' && !(todo.dueDate || todo.createdAt).endsWith('Z') ? (todo.dueDate || todo.createdAt) + 'Z' : (todo.dueDate || todo.createdAt);
                 const isPastTime = new Date(realUtcStr).getTime() < Date.now();
 
                 return (
