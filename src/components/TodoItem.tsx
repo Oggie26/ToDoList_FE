@@ -43,46 +43,51 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, i
         isDeleting && 'opacity-0 scale-95 pointer-events-none'
       )}
     >
-      <div className="flex justify-between items-start mb-2">
-        <h3 className={cn("text-lg font-bold pr-16", todo.completed && "line-through opacity-70")}>
+      <div className="flex flex-col mb-2">
+        <h3 className={cn("text-lg font-bold pr-8", todo.completed && "line-through opacity-70")}>
           {todo.title}
         </h3>
-        
-        <button
-          onClick={() => !isPast && onToggle(todo.id, todo.completed)}
-          disabled={isPast}
-          className={cn(
-            'absolute top-5 right-5 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-colors',
-            todo.completed ? 'bg-slate-800 border-slate-800 text-white' : 'border-slate-800/30 text-transparent hover:border-slate-800',
-            isPast ? 'opacity-30 cursor-not-allowed' : ''
-          )}
-        >
-          <Check size={16} className={todo.completed ? 'opacity-100' : 'opacity-0'} />
-        </button>
       </div>
       
       {todo.description && (
-        <p className={cn("text-sm opacity-80 leading-relaxed pr-8", todo.completed && "line-through")}>
+        <p className={cn("text-sm opacity-80 leading-relaxed mb-4", todo.completed && "line-through")}>
           {todo.description}
         </p>
       )}
 
-      {!isPast && (
-        <div className="absolute bottom-4 right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={() => onEdit(todo)}
-            className="p-2 bg-white/40 hover:bg-white/80 rounded-full transition-colors text-slate-800 backdrop-blur-sm"
-          >
-            <Edit size={16} />
-          </button>
-          <button
-            onClick={handleDelete}
-            className="p-2 bg-white/40 hover:bg-white/80 rounded-full transition-colors text-red-600 backdrop-blur-sm"
-          >
-            <Trash2 size={16} />
-          </button>
-        </div>
-      )}
+      <div className="mt-2 flex items-center justify-between">
+        <button
+          onClick={() => !isPast && onToggle(todo.id, todo.completed)}
+          disabled={isPast}
+          className={cn(
+            'text-xs font-bold px-4 py-2.5 rounded-full flex items-center gap-2 transition-all',
+            todo.completed 
+              ? 'bg-slate-800/10 text-slate-800 hover:bg-slate-800/20' 
+              : 'bg-slate-800 text-white shadow-md shadow-slate-800/20 hover:bg-slate-700 hover:shadow-lg',
+            isPast ? 'opacity-40 cursor-not-allowed' : ''
+          )}
+        >
+          <Check size={14} className={todo.completed ? 'opacity-50' : ''} />
+          {todo.completed ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}
+        </button>
+
+        {!isPast && (
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => onEdit(todo)}
+              className="p-2 bg-white/40 hover:bg-white/80 rounded-full transition-colors text-slate-800 backdrop-blur-sm"
+            >
+              <Edit size={16} />
+            </button>
+            <button
+              onClick={handleDelete}
+              className="p-2 bg-white/40 hover:bg-white/80 rounded-full transition-colors text-red-600 backdrop-blur-sm"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
