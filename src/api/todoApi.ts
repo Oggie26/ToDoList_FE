@@ -31,24 +31,3 @@ export const apiClient = axios.create({
   },
 });
 
-export const todoApi = {
-  getAllTodos: async (): Promise<ApiResponse<TodoResponse[]>> => {
-    const response = await apiClient.get<ApiResponse<TodoResponse[]>>('');
-    return response.data;
-  },
-
-  createTodo: async (todo: TodoRequest): Promise<ApiResponse<TodoResponse>> => {
-    const response = await apiClient.post<ApiResponse<TodoResponse>>('', todo);
-    return response.data;
-  },
-
-  updateTodo: async (id: number, todo: TodoRequest): Promise<ApiResponse<TodoResponse>> => {
-    const response = await apiClient.put<ApiResponse<TodoResponse>>(`/${id}`, todo);
-    return response.data;
-  },
-
-  deleteTodo: async (id: number): Promise<ApiResponse<void>> => {
-    const response = await apiClient.delete<ApiResponse<void>>(`/${id}`);
-    return response.data;
-  },
-};

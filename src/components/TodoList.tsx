@@ -18,10 +18,18 @@ const TodoList: React.FC = () => {
       setIsLoading(true);
       setError(null);
       const response = await todoService.getAllTodos();
-      if (response.data) {
-        setTodos(response.data);
+      const responseData = response.data as any;
+      
+      if (responseData) {
+        if (responseData.content && Array.isArray(responseData.content)) {
+          setTodos(responseData.content);
+        } else if (Array.isArray(responseData)) {
+          setTodos(responseData);
+        } else {
+          setTodos([]);
+        }
       } else {
-        setTodos(response as unknown as TodoResponse[]);
+        setTodos(Array.isArray(response) ? (response as unknown as TodoResponse[]) : []);
       }
     } catch (err: any) {
       setError('Không thể kết nối tới máy chủ.');
