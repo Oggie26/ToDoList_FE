@@ -67,8 +67,10 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, i
             isPast ? 'opacity-40 cursor-not-allowed' : ''
           )}
         >
-          <Check size={14} className={todo.completed ? 'opacity-50' : ''} />
-          {todo.completed ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}
+          <Check size={14} className={todo.completed ? 'opacity-50' : 'opacity-0'} />
+          {isPast 
+            ? (todo.completed ? 'Đã hoàn thành' : 'Chưa hoàn thành') 
+            : (todo.completed ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành')}
         </button>
 
         {!isPast && (

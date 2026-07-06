@@ -205,9 +205,9 @@ const TodoList: React.FC = () => {
                 const period = currentHour < 12 ? 'SÁNG' : (currentHour === 12 ? 'TRƯA' : (currentHour < 18 ? 'CHIỀU' : 'TỐI'));
                 const timeString = `${hour12}:${minutes} ${period}`;
                 
-                const dateStr = todo.targetDate || todo.createdAt;
-                const realUtcStr = typeof dateStr === 'string' && !dateStr.endsWith('Z') ? dateStr + 'Z' : dateStr;
-                const isPast = new Date(realUtcStr).getTime() < Date.now();
+                const todayStr = getVNDateString(new Date().toISOString());
+                const taskDateStr = getVNDateString(todo.targetDate || todo.createdAt);
+                const isPast = taskDateStr < todayStr;
 
                 return (
                   <div key={todo.id} className="relative pl-6 pb-2">
