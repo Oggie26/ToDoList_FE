@@ -19,7 +19,7 @@ const TodoList: React.FC = () => {
       setError(null);
       const response = await todoService.getAllTodos();
       const responseData = response.data as any;
-      
+
       if (responseData) {
         if (responseData.content && Array.isArray(responseData.content)) {
           setTodos(responseData.content);
@@ -61,9 +61,9 @@ const TodoList: React.FC = () => {
     try {
       const todoToUpdate = todos.find(t => t.id === id);
       if (!todoToUpdate) return;
-      
+
       setTodos(prev => prev.map(t => t.id === id ? { ...t, completed: !currentStatus } : t));
-      
+
       await todoService.updateTodo(id, {
         title: todoToUpdate.title,
         description: todoToUpdate.description,
@@ -95,13 +95,13 @@ const TodoList: React.FC = () => {
 
   const getDaysOfWeek = (dateStr: string) => {
     const date = new Date(dateStr);
-    const day = date.getDay(); // 0 (Sun) to 6 (Sat)
+    const day = date.getDay();
     const diff = date.getDate() - day;
     const startOfWeek = new Date(date.setDate(diff));
-    
+
     const days = [];
     const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-    
+
     for (let i = 0; i < 7; i++) {
       const currentDate = new Date(startOfWeek);
       currentDate.setDate(startOfWeek.getDate() + i);
@@ -124,24 +124,20 @@ const TodoList: React.FC = () => {
   return (
     <div className="w-full max-w-md mx-auto min-h-screen bg-[#FDF8F0] pb-24 relative shadow-2xl">
       <div className="pt-12 px-6">
-        <button className="p-2 -ml-2 mb-4 hover:bg-slate-200/50 rounded-full transition-colors">
-          <ChevronLeft size={28} className="text-slate-800" />
-        </button>
-
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Hôm nay</h1>
-          <button 
+          <button
             onClick={() => setIsFormOpen(true)}
             className="px-5 py-2.5 bg-teal-600 text-white font-bold rounded-full text-sm shadow-lg shadow-teal-600/30 hover:bg-teal-700 transition-colors"
           >
             Thêm công việc
           </button>
         </div>
-        
+
         <p className="text-slate-500 font-medium text-lg mb-8">Ngày làm việc hiệu quả, Bạn</p>
 
         <h2 className="text-2xl font-bold text-slate-800 mb-6">Tháng {new Date(selectedDate).getMonth() + 1}, {new Date(selectedDate).getFullYear()}</h2>
-        
+
         <div className="flex justify-between items-center mb-10 px-1">
           {getDaysOfWeek(selectedDate).map((item, idx) => {
             const taskCount = todos.filter(t => {
@@ -150,24 +146,21 @@ const TodoList: React.FC = () => {
             }).length;
 
             return (
-            <div key={idx} className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setSelectedDate(item.fullDate)}>
-              <span className={`text-sm font-medium ${item.active ? 'text-rose-500' : 'text-slate-500'}`}>
-                {item.day}
-              </span>
-              <div className="relative">
-                <span className={`text-lg font-bold w-10 h-10 flex items-center justify-center rounded-full transition-colors ${item.active ? 'text-white bg-rose-500 shadow-md shadow-rose-500/30' : 'text-slate-800 hover:bg-slate-200'}`}>
-                  {item.date}
+              <div key={idx} className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setSelectedDate(item.fullDate)}>
+                <span className={`text-sm font-medium ${item.active ? 'text-rose-500' : 'text-slate-500'}`}>
+                  {item.day}
                 </span>
-                {taskCount > 0 && !item.active && (
-                   <span className="absolute -top-0 -right-0 w-3.5 h-3.5 bg-teal-500 rounded-full border-2 border-[#FDF8F0]"></span>
-                )}
+                <div className="relative">
+                  <span className={`text-lg font-bold w-10 h-10 flex items-center justify-center rounded-full transition-colors ${item.active ? 'text-white bg-rose-500 shadow-md shadow-rose-500/30' : 'text-slate-800 hover:bg-slate-200'}`}>
+                    {item.date}
+                  </span>
+                  {taskCount > 0 && !item.active && (
+                    <span className="absolute -top-0 -right-0 w-3.5 h-3.5 bg-teal-500 rounded-full border-2 border-[#FDF8F0]"></span>
+                  )}
+                </div>
               </div>
-            </div>
-          )})}
-        </div>
-
-        <div className="w-full h-px border-t border-dashed border-slate-300 mb-8 relative">
-          <span className="absolute -top-3 -left-2 text-xs font-bold text-slate-400 bg-[#FDF8F0] pr-2">9 SÁNG</span>
+            )
+          })}
         </div>
 
         {error ? (
@@ -185,22 +178,43 @@ const TodoList: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            {filteredTodos.map(todo => (
-              <TodoItem 
-                key={todo.id} 
-                todo={todo} 
-                onToggle={handleToggle}
-                onDelete={handleDelete}
-                onEdit={openEditForm}
-              />
-            ))}
+            {filteredTodos
+              .sort((a, b) => new Date(a.targetDate || a.createdAt).getTime() - new Date(b.targetDate || b.createdAt).getTime())
+              .map((todo, index, array) => {
+                const currentTaskTime = new Date(todo.targetDate || todo.createdAt);
+                const prevTaskTime = index > 0 ? new Date(array[index - 1].targetDate || array[index - 1].createdAt) : null;
+
+                const currentHour = currentTaskTime.getHours();
+                const prevHour = prevTaskTime ? prevTaskTime.getHours() : null;
+
+                const showTimeFrame = currentHour !== prevHour;
+                const hour12 = currentHour % 12 || 12;
+                const period = currentHour < 12 ? 'SÁNG' : (currentHour === 12 ? 'TRƯA' : (currentHour < 18 ? 'CHIỀU' : 'TỐI'));
+                const timeString = `${hour12} ${period}`;
+
+                return (
+                  <React.Fragment key={todo.id}>
+                    {showTimeFrame && (
+                      <div className="w-full h-px border-t border-dashed border-slate-300 mt-2 mb-6 relative">
+                        <span className="absolute -top-3 -left-2 text-xs font-bold text-slate-400 bg-[#FDF8F0] px-2">{timeString}</span>
+                      </div>
+                    )}
+                    <TodoItem
+                      todo={todo}
+                      onToggle={handleToggle}
+                      onDelete={handleDelete}
+                      onEdit={openEditForm}
+                    />
+                  </React.Fragment>
+                );
+              })}
           </div>
         )}
       </div>
 
       {isFormOpen && (
-        <TodoForm 
-          onSubmit={handleCreateOrUpdate} 
+        <TodoForm
+          onSubmit={handleCreateOrUpdate}
           editingTodo={editingTodo}
           onCancelEdit={closeForm}
           selectedDate={selectedDate}
