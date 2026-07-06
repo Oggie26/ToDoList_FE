@@ -108,7 +108,6 @@ const TodoForm: React.FC<TodoFormProps> = ({ onSubmit, editingTodo, onCancelEdit
             <input
               type="datetime-local"
               value={targetDate}
-              min={getDefaultDateTime()}
               onChange={(e) => setTargetDate(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all outline-none"
               disabled={isSubmitting}

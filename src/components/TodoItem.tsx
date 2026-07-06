@@ -49,7 +49,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, i
           {todo.title}
         </h3>
       </div>
-      
+
       {todo.description && (
         <p className={cn("text-sm opacity-80 leading-relaxed mb-4", todo.completed && "line-through")}>
           {todo.description}
@@ -72,8 +72,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, i
           >
             <Check size={14} /> Hoàn thành
           </button>
-          
-          {/* Button Chưa hoàn thành */}
+
           <button
             onClick={() => !isPast && todo.completed && onToggle(todo.id, true)}
             disabled={isPast || !todo.completed}
