@@ -9,6 +9,7 @@ interface TodoItemProps {
   onToggle: (id: number, currentStatus: boolean) => void;
   onDelete: (id: number) => void;
   onEdit: (todo: TodoResponse) => void;
+  isPast?: boolean;
 }
 
 export function cn(...inputs: (string | undefined | null | false)[]) {
@@ -23,7 +24,7 @@ const colors = [
   'bg-purple-100/80 text-purple-900 border-purple-200/50'
 ];
 
-const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit }) => {
+const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, isPast }) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const colorClass = colors[todo.id % colors.length];
@@ -48,10 +49,12 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit })
         </h3>
         
         <button
-          onClick={() => onToggle(todo.id, todo.completed)}
+          onClick={() => !isPast && onToggle(todo.id, todo.completed)}
+          disabled={isPast}
           className={cn(
             'absolute top-5 right-5 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-colors',
-            todo.completed ? 'bg-slate-800 border-slate-800 text-white' : 'border-slate-800/30 text-transparent hover:border-slate-800'
+            todo.completed ? 'bg-slate-800 border-slate-800 text-white' : 'border-slate-800/30 text-transparent hover:border-slate-800',
+            isPast ? 'opacity-30 cursor-not-allowed' : ''
           )}
         >
           <Check size={16} className={todo.completed ? 'opacity-100' : 'opacity-0'} />
@@ -64,20 +67,22 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit })
         </p>
       )}
 
-      <div className="absolute bottom-4 right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={() => onEdit(todo)}
-          className="p-2 bg-white/40 hover:bg-white/80 rounded-full transition-colors text-slate-800 backdrop-blur-sm"
-        >
-          <Edit size={16} />
-        </button>
-        <button
-          onClick={handleDelete}
-          className="p-2 bg-white/40 hover:bg-white/80 rounded-full transition-colors text-red-600 backdrop-blur-sm"
-        >
-          <Trash2 size={16} />
-        </button>
-      </div>
+      {!isPast && (
+        <div className="absolute bottom-4 right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => onEdit(todo)}
+            className="p-2 bg-white/40 hover:bg-white/80 rounded-full transition-colors text-slate-800 backdrop-blur-sm"
+          >
+            <Edit size={16} />
+          </button>
+          <button
+            onClick={handleDelete}
+            className="p-2 bg-white/40 hover:bg-white/80 rounded-full transition-colors text-red-600 backdrop-blur-sm"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

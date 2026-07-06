@@ -5,13 +5,29 @@ import TodoItem from './TodoItem';
 import TodoForm from './TodoForm';
 import { Loader2, AlertCircle } from 'lucide-react';
 
+const getVNTime = (dateStr: string | undefined | null) => {
+  if (!dateStr) return new Date();
+  const utcStr = typeof dateStr === 'string' && !dateStr.endsWith('Z') ? dateStr + 'Z' : dateStr;
+  const date = new Date(utcStr);
+  date.setUTCHours(date.getUTCHours() + 7);
+  return date;
+};
+
+const getVNDateString = (dateStr: string | undefined | null) => {
+  const date = getVNTime(dateStr);
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(date.getUTCDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
 const TodoList: React.FC = () => {
   const [todos, setTodos] = useState<TodoResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<TodoResponse | null>(null);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(getVNDateString(new Date().toISOString()));
 
   const fetchTodos = async () => {
     try {
@@ -117,7 +133,7 @@ const TodoList: React.FC = () => {
   };
 
   const filteredTodos = todos.filter(t => {
-    const tDate = t.targetDate ? t.targetDate.split('T')[0] : (t.createdAt ? t.createdAt.split('T')[0] : new Date().toISOString().split('T')[0]);
+    const tDate = getVNDateString(t.targetDate || t.createdAt);
     return tDate === selectedDate;
   });
 
@@ -141,7 +157,7 @@ const TodoList: React.FC = () => {
         <div className="flex justify-between items-center mb-10 px-1">
           {getDaysOfWeek(selectedDate).map((item, idx) => {
             const taskCount = todos.filter(t => {
-              const tDate = t.targetDate ? t.targetDate.split('T')[0] : (t.createdAt ? t.createdAt.split('T')[0] : new Date().toISOString().split('T')[0]);
+              const tDate = getVNDateString(t.targetDate || t.createdAt);
               return tDate === item.fullDate;
             }).length;
 
@@ -179,15 +195,19 @@ const TodoList: React.FC = () => {
         ) : (
           <div className="relative border-l-2 border-dashed border-slate-300 ml-4 mt-6">
             {filteredTodos
-              .sort((a, b) => new Date(a.targetDate || a.createdAt).getTime() - new Date(b.targetDate || b.createdAt).getTime())
+              .sort((a, b) => getVNTime(a.targetDate || a.createdAt).getTime() - getVNTime(b.targetDate || b.createdAt).getTime())
               .map((todo) => {
-                const currentTaskTime = new Date(todo.targetDate || todo.createdAt);
+                const currentTaskTime = getVNTime(todo.targetDate || todo.createdAt);
                 
-                const currentHour = currentTaskTime.getHours();
-                const minutes = currentTaskTime.getMinutes().toString().padStart(2, '0');
+                const currentHour = currentTaskTime.getUTCHours();
+                const minutes = currentTaskTime.getUTCMinutes().toString().padStart(2, '0');
                 const hour12 = currentHour % 12 || 12;
                 const period = currentHour < 12 ? 'SÁNG' : (currentHour === 12 ? 'TRƯA' : (currentHour < 18 ? 'CHIỀU' : 'TỐI'));
                 const timeString = `${hour12}:${minutes} ${period}`;
+                
+                const dateStr = todo.targetDate || todo.createdAt;
+                const realUtcStr = typeof dateStr === 'string' && !dateStr.endsWith('Z') ? dateStr + 'Z' : dateStr;
+                const isPast = new Date(realUtcStr).getTime() < Date.now();
 
                 return (
                   <div key={todo.id} className="relative pl-6 pb-2">
@@ -200,6 +220,7 @@ const TodoList: React.FC = () => {
                       onToggle={handleToggle}
                       onDelete={handleDelete}
                       onEdit={openEditForm}
+                      isPast={isPast}
                     />
                   </div>
                 );
