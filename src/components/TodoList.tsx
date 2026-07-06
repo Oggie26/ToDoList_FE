@@ -3,7 +3,7 @@ import { todoService } from '../services/todoService';
 import type { TodoResponse, TodoRequest } from '../services/todoService';
 import TodoItem from './TodoItem';
 import TodoForm from './TodoForm';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Check } from 'lucide-react';
 
 const getVNTime = (dateStr: string | undefined | null) => {
   if (!dateStr) return new Date();
@@ -28,6 +28,12 @@ const TodoList: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<TodoResponse | null>(null);
   const [selectedDate, setSelectedDate] = useState(getVNDateString(new Date().toISOString()));
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
 
   const fetchTodos = async () => {
     try {
@@ -74,6 +80,9 @@ const TodoList: React.FC = () => {
   };
 
   const handleToggle = async (id: number, currentStatus: boolean) => {
+    const actionText = currentStatus ? 'CHƯA HOÀN THÀNH' : 'HOÀN THÀNH';
+    if (!window.confirm(`Bạn có chắc chắn muốn đánh dấu ${actionText} công việc này?`)) return;
+
     try {
       const todoToUpdate = todos.find(t => t.id === id);
       if (!todoToUpdate) return;
@@ -85,15 +94,19 @@ const TodoList: React.FC = () => {
         description: todoToUpdate.description,
         completed: !currentStatus
       });
+      showToast(`Đã đánh dấu ${actionText.toLowerCase()}!`);
     } catch (err) {
+      alert('Cập nhật trạng thái thất bại.');
       await fetchTodos();
     }
   };
 
   const handleDelete = async (id: number) => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa công việc này? Hành động này không thể hoàn tác!')) return;
     try {
       await todoService.deleteTodo(id);
       setTodos(prev => prev.filter(t => t.id !== id));
+      showToast('Đã xóa công việc thành công!');
     } catch (err) {
       alert('Xóa công việc thất bại.');
     }
@@ -208,6 +221,9 @@ const TodoList: React.FC = () => {
                 const todayStr = getVNDateString(new Date().toISOString());
                 const taskDateStr = getVNDateString(todo.targetDate || todo.createdAt);
                 const isPast = taskDateStr < todayStr;
+                
+                const realUtcStr = typeof (todo.targetDate || todo.createdAt) === 'string' && !(todo.targetDate || todo.createdAt).endsWith('Z') ? (todo.targetDate || todo.createdAt) + 'Z' : (todo.targetDate || todo.createdAt);
+                const isPastTime = new Date(realUtcStr).getTime() < Date.now();
 
                 return (
                   <div key={todo.id} className="relative pl-6 pb-2">
@@ -221,6 +237,7 @@ const TodoList: React.FC = () => {
                       onDelete={handleDelete}
                       onEdit={openEditForm}
                       isPast={isPast}
+                      isPastTime={isPastTime}
                     />
                   </div>
                 );
@@ -236,6 +253,13 @@ const TodoList: React.FC = () => {
           onCancelEdit={closeForm}
           selectedDate={selectedDate}
         />
+      )}
+
+      {toastMessage && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-teal-600 text-white px-6 py-3 rounded-full shadow-2xl font-bold flex items-center gap-2 z-50 animate-in fade-in slide-in-from-bottom-5">
+          <Check size={18} />
+          {toastMessage}
+        </div>
       )}
     </div>
   );
