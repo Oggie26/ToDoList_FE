@@ -11,6 +11,7 @@ const TodoList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<TodoResponse | null>(null);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   const fetchTodos = async () => {
     try {
@@ -84,15 +85,33 @@ const TodoList: React.FC = () => {
     setIsFormOpen(false);
   };
 
-  const days = [
-    { day: 'CN', date: 5, active: true },
-    { day: 'T2', date: 6, active: false },
-    { day: 'T3', date: 7, active: false },
-    { day: 'T4', date: 8, active: false },
-    { day: 'T5', date: 9, active: false },
-    { day: 'T6', date: 10, active: false },
-    { day: 'T7', date: 11, active: false },
-  ];
+  const getDaysOfWeek = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const day = date.getDay(); // 0 (Sun) to 6 (Sat)
+    const diff = date.getDate() - day;
+    const startOfWeek = new Date(date.setDate(diff));
+    
+    const days = [];
+    const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(startOfWeek);
+      currentDate.setDate(startOfWeek.getDate() + i);
+      const dateString = currentDate.toISOString().split('T')[0];
+      days.push({
+        day: dayNames[i],
+        date: currentDate.getDate(),
+        fullDate: dateString,
+        active: dateString === selectedDate
+      });
+    }
+    return days;
+  };
+
+  const filteredTodos = todos.filter(t => {
+    const tDate = t.targetDate ? t.targetDate.split('T')[0] : (t.createdAt ? t.createdAt.split('T')[0] : new Date().toISOString().split('T')[0]);
+    return tDate === selectedDate;
+  });
 
   return (
     <div className="w-full max-w-md mx-auto min-h-screen bg-[#FDF8F0] pb-24 relative shadow-2xl">
@@ -113,19 +132,30 @@ const TodoList: React.FC = () => {
         
         <p className="text-slate-500 font-medium text-lg mb-8">Ngày làm việc hiệu quả, Bạn</p>
 
-        <h2 className="text-2xl font-bold text-slate-800 mb-6">Tháng 4, 2020</h2>
+        <h2 className="text-2xl font-bold text-slate-800 mb-6">Tháng {new Date(selectedDate).getMonth() + 1}, {new Date(selectedDate).getFullYear()}</h2>
         
         <div className="flex justify-between items-center mb-10 px-1">
-          {days.map((item, idx) => (
-            <div key={idx} className="flex flex-col items-center gap-2">
+          {getDaysOfWeek(selectedDate).map((item, idx) => {
+            const taskCount = todos.filter(t => {
+              const tDate = t.targetDate ? t.targetDate.split('T')[0] : (t.createdAt ? t.createdAt.split('T')[0] : new Date().toISOString().split('T')[0]);
+              return tDate === item.fullDate;
+            }).length;
+
+            return (
+            <div key={idx} className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setSelectedDate(item.fullDate)}>
               <span className={`text-sm font-medium ${item.active ? 'text-rose-500' : 'text-slate-500'}`}>
                 {item.day}
               </span>
-              <span className={`text-lg font-bold w-10 h-10 flex items-center justify-center rounded-full ${item.active ? 'text-rose-500' : 'text-slate-800'}`}>
-                {item.date}
-              </span>
+              <div className="relative">
+                <span className={`text-lg font-bold w-10 h-10 flex items-center justify-center rounded-full transition-colors ${item.active ? 'text-white bg-rose-500 shadow-md shadow-rose-500/30' : 'text-slate-800 hover:bg-slate-200'}`}>
+                  {item.date}
+                </span>
+                {taskCount > 0 && !item.active && (
+                   <span className="absolute -top-0 -right-0 w-3.5 h-3.5 bg-teal-500 rounded-full border-2 border-[#FDF8F0]"></span>
+                )}
+              </div>
             </div>
-          ))}
+          )})}
         </div>
 
         <div className="w-full h-px border-t border-dashed border-slate-300 mb-8 relative">
@@ -141,13 +171,13 @@ const TodoList: React.FC = () => {
           <div className="flex flex-col items-center justify-center py-10 text-teal-600">
             <Loader2 size={32} className="animate-spin" />
           </div>
-        ) : todos.length === 0 ? (
+        ) : filteredTodos.length === 0 ? (
           <div className="text-center py-10 text-slate-500 font-medium">
-            Tuyệt vời! Bạn không có công việc nào tồn đọng.
+            Tuyệt vời! Bạn không có công việc nào trong ngày này.
           </div>
         ) : (
           <div className="space-y-6">
-            {todos.map(todo => (
+            {filteredTodos.map(todo => (
               <TodoItem 
                 key={todo.id} 
                 todo={todo} 
@@ -165,6 +195,7 @@ const TodoList: React.FC = () => {
           onSubmit={handleCreateOrUpdate} 
           editingTodo={editingTodo}
           onCancelEdit={closeForm}
+          selectedDate={selectedDate}
         />
       )}
     </div>

@@ -7,22 +7,36 @@ interface TodoFormProps {
   onSubmit: (todo: TodoRequest) => Promise<void>;
   editingTodo: TodoResponse | null;
   onCancelEdit: () => void;
+  selectedDate?: string;
 }
 
-const TodoForm: React.FC<TodoFormProps> = ({ onSubmit, editingTodo, onCancelEdit }) => {
+const TodoForm: React.FC<TodoFormProps> = ({ onSubmit, editingTodo, onCancelEdit, selectedDate }) => {
+  const getDefaultDateTime = (dateStr?: string) => {
+    const now = new Date();
+    if (dateStr) {
+      const [y, m, d] = dateStr.split('-');
+      now.setFullYear(parseInt(y), parseInt(m) - 1, parseInt(d));
+    }
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [targetDate, setTargetDate] = useState(getDefaultDateTime(selectedDate));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (editingTodo) {
       setTitle(editingTodo.title);
       setDescription(editingTodo.description || '');
+      setTargetDate(editingTodo.targetDate || getDefaultDateTime(selectedDate));
     } else {
       setTitle('');
       setDescription('');
+      setTargetDate(getDefaultDateTime(selectedDate));
     }
-  }, [editingTodo]);
+  }, [editingTodo, selectedDate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +48,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ onSubmit, editingTodo, onCancelEdit
         title: title.trim(),
         description: description.trim() || undefined,
         completed: editingTodo ? editingTodo.completed : false,
+        targetDate: targetDate || undefined,
       });
       if (!editingTodo) {
         setTitle('');
@@ -84,6 +99,18 @@ const TodoForm: React.FC<TodoFormProps> = ({ onSubmit, editingTodo, onCancelEdit
               placeholder="Chi tiết công việc..."
               rows={3}
               className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all outline-none resize-none"
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Thời gian thực hiện</label>
+            <input
+              type="datetime-local"
+              value={targetDate}
+              min={getDefaultDateTime()}
+              onChange={(e) => setTargetDate(e.target.value)}
+              className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all outline-none"
               disabled={isSubmitting}
             />
           </div>

@@ -6,6 +6,7 @@ export interface TodoRequest {
   title: string;
   description?: string;
   completed: boolean;
+  targetDate?: string;
 }
 
 export interface TodoResponse {
@@ -13,6 +14,7 @@ export interface TodoResponse {
   title: string;
   description?: string;
   completed: boolean;
+  targetDate?: string;
   createdAt: string;
 }
 
