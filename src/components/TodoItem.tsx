@@ -89,7 +89,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, i
           </button>
         </div>
 
-        {!isPast && (
+        {!isPast && !isCompleted && (
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => onEdit(todo)}

@@ -7,17 +7,14 @@ import { Loader2, AlertCircle, Check } from 'lucide-react';
 
 const getVNTime = (dateStr: string | undefined | null) => {
   if (!dateStr) return new Date();
-  const utcStr = typeof dateStr === 'string' && !dateStr.endsWith('Z') ? dateStr + 'Z' : dateStr;
-  const date = new Date(utcStr);
-  date.setUTCHours(date.getUTCHours() + 7);
-  return date;
+  return new Date(dateStr);
 };
 
 const getVNDateString = (dateStr: string | undefined | null) => {
   const date = getVNTime(dateStr);
-  const yyyy = date.getUTCFullYear();
-  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const dd = String(date.getUTCDate()).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 };
 
@@ -213,8 +210,8 @@ const TodoList: React.FC = () => {
               .map((todo) => {
                 const currentTaskTime = getVNTime(todo.dueDate || todo.createdAt);
                 
-                const currentHour = currentTaskTime.getUTCHours();
-                const minutes = currentTaskTime.getUTCMinutes().toString().padStart(2, '0');
+                const currentHour = currentTaskTime.getHours();
+                const minutes = currentTaskTime.getMinutes().toString().padStart(2, '0');
                 const hour12 = currentHour % 12 || 12;
                 const period = currentHour < 12 ? 'SÁNG' : (currentHour === 12 ? 'TRƯA' : (currentHour < 18 ? 'CHIỀU' : 'TỐI'));
                 const timeString = `${hour12}:${minutes} ${period}`;
@@ -223,8 +220,7 @@ const TodoList: React.FC = () => {
                 const taskDateStr = getVNDateString(todo.dueDate || todo.createdAt);
                 const isPast = taskDateStr < todayStr;
                 
-                const realUtcStr = typeof (todo.dueDate || todo.createdAt) === 'string' && !(todo.dueDate || todo.createdAt).endsWith('Z') ? (todo.dueDate || todo.createdAt) + 'Z' : (todo.dueDate || todo.createdAt);
-                const isPastTime = new Date(realUtcStr).getTime() < Date.now();
+                const isPastTime = getVNTime(todo.dueDate || todo.createdAt).getTime() < Date.now();
 
                 return (
                   <div key={todo.id} className="relative pl-6 pb-2">
