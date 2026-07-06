@@ -177,35 +177,31 @@ const TodoList: React.FC = () => {
             Tuyệt vời! Bạn không có công việc nào trong ngày này.
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="relative border-l-2 border-dashed border-slate-300 ml-4 mt-6">
             {filteredTodos
               .sort((a, b) => new Date(a.targetDate || a.createdAt).getTime() - new Date(b.targetDate || b.createdAt).getTime())
               .map((todo, index, array) => {
                 const currentTaskTime = new Date(todo.targetDate || todo.createdAt);
-                const prevTaskTime = index > 0 ? new Date(array[index - 1].targetDate || array[index - 1].createdAt) : null;
-
+                
                 const currentHour = currentTaskTime.getHours();
-                const prevHour = prevTaskTime ? prevTaskTime.getHours() : null;
-
-                const showTimeFrame = currentHour !== prevHour;
+                const minutes = currentTaskTime.getMinutes().toString().padStart(2, '0');
                 const hour12 = currentHour % 12 || 12;
                 const period = currentHour < 12 ? 'SÁNG' : (currentHour === 12 ? 'TRƯA' : (currentHour < 18 ? 'CHIỀU' : 'TỐI'));
-                const timeString = `${hour12} ${period}`;
+                const timeString = `${hour12}:${minutes} ${period}`;
 
                 return (
-                  <React.Fragment key={todo.id}>
-                    {showTimeFrame && (
-                      <div className="w-full h-px border-t border-dashed border-slate-300 mt-2 mb-6 relative">
-                        <span className="absolute -top-3 -left-2 text-xs font-bold text-slate-400 bg-[#FDF8F0] px-2">{timeString}</span>
-                      </div>
-                    )}
+                  <div key={todo.id} className="relative pl-6 pb-2">
+                    <div className="absolute w-4 h-4 bg-teal-500 rounded-full -left-[9px] top-6 border-4 border-[#FDF8F0]"></div>
+                    <div className="text-sm font-bold text-slate-500 mb-2 pt-1 pl-1">
+                      {timeString}
+                    </div>
                     <TodoItem
                       todo={todo}
                       onToggle={handleToggle}
                       onDelete={handleDelete}
                       onEdit={openEditForm}
                     />
-                  </React.Fragment>
+                  </div>
                 );
               })}
           </div>
