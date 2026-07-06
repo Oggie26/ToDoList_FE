@@ -1,8 +1,11 @@
 import { apiClient } from '../api/todoApi';
+export type TodoStatus = 'TODO' | 'IN_PROGRESS' | 'COMPLETED';
+
 export interface TodoRequest {
   title: string;
   description?: string;
   completed: boolean;
+  status: TodoStatus;
   targetDate?: string;
 }
 
@@ -11,6 +14,7 @@ export interface TodoResponse {
   title: string;
   description?: string;
   completed: boolean;
+  status: TodoStatus;
   targetDate?: string;
   createdAt: string;
 }

@@ -92,7 +92,8 @@ const TodoList: React.FC = () => {
       await todoService.updateTodo(id, {
         title: todoToUpdate.title,
         description: todoToUpdate.description,
-        completed: !currentStatus
+        completed: !currentStatus,
+        status: !currentStatus ? 'COMPLETED' : 'TODO'
       });
       showToast(`Đã đánh dấu ${actionText.toLowerCase()}!`);
     } catch (err) {
