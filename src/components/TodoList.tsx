@@ -3,7 +3,7 @@ import { todoService } from '../services/todoService';
 import type { TodoResponse, TodoRequest } from '../services/todoService';
 import TodoItem from './TodoItem';
 import TodoForm from './TodoForm';
-import { Loader2, AlertCircle, Check } from 'lucide-react';
+import { Loader2, AlertCircle, Check, Calendar } from 'lucide-react';
 
 const getVNTime = (dateStr: string | undefined | null) => {
   if (!dateStr) return new Date();
@@ -148,11 +148,15 @@ const TodoList: React.FC = () => {
     return tDate === selectedDate;
   });
 
+  const isToday = selectedDate === getVNDateString(new Date().toISOString());
+
   return (
     <div className="w-full max-w-md mx-auto min-h-screen bg-[#FDF8F0] pb-24 relative shadow-2xl">
       <div className="pt-12 px-6">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Hôm nay</h1>
+          <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">
+            {isToday ? 'Hôm nay' : `Ngày ${new Date(selectedDate).getDate()}/${new Date(selectedDate).getMonth() + 1}`}
+          </h1>
           <button
             onClick={() => setIsFormOpen(true)}
             className="px-5 py-2.5 bg-teal-600 text-white font-bold rounded-full text-sm shadow-lg shadow-teal-600/30 hover:bg-teal-700 transition-colors"
@@ -163,7 +167,24 @@ const TodoList: React.FC = () => {
 
         <p className="text-slate-500 font-medium text-lg mb-8">Ngày làm việc hiệu quả, Bạn</p>
 
-        <h2 className="text-2xl font-bold text-slate-800 mb-6">Tháng {new Date(selectedDate).getMonth() + 1}, {new Date(selectedDate).getFullYear()}</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-slate-800">
+            Tháng {new Date(selectedDate).getMonth() + 1}, {new Date(selectedDate).getFullYear()}
+          </h2>
+          <div className="relative">
+            <button className="p-2.5 bg-white rounded-full shadow-sm border border-slate-200 text-slate-600 hover:text-teal-600 hover:border-teal-200 hover:bg-teal-50 transition-all flex items-center justify-center">
+              <Calendar size={20} />
+            </button>
+            <input 
+              type="date" 
+              value={selectedDate}
+              onChange={(e) => {
+                if(e.target.value) setSelectedDate(e.target.value);
+              }}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+            />
+          </div>
+        </div>
 
         <div className="flex justify-between items-center mb-10 px-1">
           {getDaysOfWeek(selectedDate).map((item, idx) => {
