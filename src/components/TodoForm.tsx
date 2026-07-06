@@ -47,7 +47,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ onSubmit, editingTodo, onCancelEdit
       await onSubmit({
         title: title.trim(),
         description: description.trim() || undefined,
-        completed: editingTodo ? editingTodo.completed : false,
+        completed: editingTodo ? editingTodo.status === 'COMPLETED' : false,
         status: editingTodo ? editingTodo.status : 'TODO',
         dueDate: dueDate || undefined,
       });

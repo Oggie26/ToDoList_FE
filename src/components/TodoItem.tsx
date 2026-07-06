@@ -28,7 +28,7 @@ const colors = [
 const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, isPast, isPastTime }) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const isCompleted = todo.status === 'COMPLETED' || todo.completed;
+  const isCompleted = todo.status === 'COMPLETED';
   const colorClass = colors[todo.id % colors.length];
 
   const handleDelete = () => {

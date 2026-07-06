@@ -4,7 +4,7 @@ export type TodoStatus = 'TODO' | 'IN_PROGRESS' | 'COMPLETED';
 export interface TodoRequest {
   title: string;
   description?: string;
-  completed?: boolean; // Keep for backward compatibility if needed, or remove
+  completed?: boolean;
   status: TodoStatus;
   dueDate?: string;
 }
