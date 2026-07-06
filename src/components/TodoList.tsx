@@ -3,6 +3,7 @@ import { todoService } from '../services/todoService';
 import type { TodoResponse, TodoRequest } from '../services/todoService';
 import TodoItem from './TodoItem';
 import TodoForm from './TodoForm';
+import CalendarPopup from './CalendarPopup';
 import { Loader2, AlertCircle, Check, Calendar } from 'lucide-react';
 
 const getVNTime = (dateStr: string | undefined | null) => {
@@ -23,6 +24,7 @@ const TodoList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<TodoResponse | null>(null);
   const [selectedDate, setSelectedDate] = useState(getVNDateString(new Date().toISOString()));
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -172,17 +174,12 @@ const TodoList: React.FC = () => {
             Tháng {new Date(selectedDate).getMonth() + 1}, {new Date(selectedDate).getFullYear()}
           </h2>
           <div className="relative">
-            <button className="p-2.5 bg-white rounded-full shadow-sm border border-slate-200 text-slate-600 hover:text-teal-600 hover:border-teal-200 hover:bg-teal-50 transition-all flex items-center justify-center">
+            <button 
+              onClick={() => setIsCalendarOpen(true)}
+              className="p-2.5 bg-white rounded-full shadow-sm border border-slate-200 text-slate-600 hover:text-teal-600 hover:border-teal-200 hover:bg-teal-50 transition-all flex items-center justify-center"
+            >
               <Calendar size={20} />
             </button>
-            <input 
-              type="date" 
-              value={selectedDate}
-              onChange={(e) => {
-                if(e.target.value) setSelectedDate(e.target.value);
-              }}
-              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-            />
           </div>
         </div>
 
@@ -270,6 +267,15 @@ const TodoList: React.FC = () => {
           editingTodo={editingTodo}
           onCancelEdit={closeForm}
           selectedDate={selectedDate}
+        />
+      )}
+
+      {isCalendarOpen && (
+        <CalendarPopup
+          selectedDate={selectedDate}
+          todos={todos}
+          onSelectDate={(date) => setSelectedDate(date)}
+          onClose={() => setIsCalendarOpen(false)}
         />
       )}
 
