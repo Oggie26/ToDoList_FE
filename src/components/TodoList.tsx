@@ -3,7 +3,7 @@ import { todoService } from '../services/todoService';
 import type { TodoResponse, TodoRequest } from '../services/todoService';
 import TodoItem from './TodoItem';
 import TodoForm from './TodoForm';
-import { ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 
 const TodoList: React.FC = () => {
   const [todos, setTodos] = useState<TodoResponse[]>([]);
@@ -180,7 +180,7 @@ const TodoList: React.FC = () => {
           <div className="relative border-l-2 border-dashed border-slate-300 ml-4 mt-6">
             {filteredTodos
               .sort((a, b) => new Date(a.targetDate || a.createdAt).getTime() - new Date(b.targetDate || b.createdAt).getTime())
-              .map((todo, index, array) => {
+              .map((todo) => {
                 const currentTaskTime = new Date(todo.targetDate || todo.createdAt);
                 
                 const currentHour = currentTaskTime.getHours();
