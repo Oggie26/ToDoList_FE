@@ -6,7 +6,7 @@ import { twMerge } from 'tailwind-merge';
 
 interface TodoItemProps {
   todo: TodoResponse;
-  onToggle: (id: number, currentStatus: boolean) => void;
+  onUpdateStatus: (id: number, newStatus: TodoResponse['status']) => void;
   onDelete: (id: number) => void;
   onEdit: (todo: TodoResponse) => void;
   isPast?: boolean;
@@ -25,10 +25,12 @@ const colors = [
   'bg-purple-100/80 text-purple-900 border-purple-200/50'
 ];
 
-const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, isPast, isPastTime }) => {
+const TodoItem: React.FC<TodoItemProps> = ({ todo, onUpdateStatus, onDelete, onEdit, isPast, isPastTime }) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const isCompleted = todo.status === 'COMPLETED';
+  const isNotDo = todo.status === 'NOT_DO';
+  const isFinished = isCompleted || isNotDo;
   const colorClass = colors[todo.id % colors.length];
 
   const handleDelete = () => {
@@ -61,7 +63,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, i
         <div className="flex items-center gap-2">
           {/* Button Hoàn thành */}
           <button
-            onClick={() => !isPast && !isCompleted && onToggle(todo.id, false)}
+            onClick={() => !isPast && !isCompleted && onUpdateStatus(todo.id, 'COMPLETED')}
             disabled={isPast || isCompleted}
             className={cn(
               'text-xs font-bold px-4 py-2 rounded-full transition-all flex items-center gap-1.5',
@@ -75,21 +77,21 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete, onEdit, i
           </button>
 
           <button
-            onClick={() => !isPast && isCompleted && onToggle(todo.id, true)}
-            disabled={isPast || !isCompleted}
+            onClick={() => !isPast && !isNotDo && onUpdateStatus(todo.id, 'NOT_DO')}
+            disabled={isPast || isNotDo}
             className={cn(
               'text-xs font-bold px-4 py-2 rounded-full transition-all',
-              !isCompleted
-                ? (isPast ? 'bg-red-100 text-red-600 border border-red-200 opacity-60' : 'bg-rose-500 text-white shadow-md shadow-rose-500/30')
+              isNotDo
+                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
                 : 'bg-white/60 text-slate-600 hover:bg-white',
-              isPast && isCompleted ? 'opacity-40 cursor-not-allowed' : ''
+              isPast && !isNotDo ? 'opacity-40 cursor-not-allowed' : ''
             )}
           >
             Chưa hoàn thành
           </button>
         </div>
 
-        {!isPast && !isCompleted && (
+        {!isPast && !isFinished && (
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => onEdit(todo)}

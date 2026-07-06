@@ -76,21 +76,21 @@ const TodoList: React.FC = () => {
     }
   };
 
-  const handleToggle = async (id: number, currentStatus: boolean) => {
-    const actionText = currentStatus ? 'CHƯA HOÀN THÀNH' : 'HOÀN THÀNH';
+  const handleUpdateStatus = async (id: number, newStatus: TodoResponse['status']) => {
+    const actionText = newStatus === 'COMPLETED' ? 'HOÀN THÀNH' : (newStatus === 'NOT_DO' ? 'CHƯA HOÀN THÀNH' : 'CẬP NHẬT');
     if (!window.confirm(`Bạn có chắc chắn muốn đánh dấu ${actionText} công việc này?`)) return;
 
     try {
       const todoToUpdate = todos.find(t => t.id === id);
       if (!todoToUpdate) return;
 
-      setTodos(prev => prev.map(t => t.id === id ? { ...t, completed: !currentStatus } : t));
+      setTodos(prev => prev.map(t => t.id === id ? { ...t, status: newStatus } : t));
 
       await todoService.updateTodo(id, {
         title: todoToUpdate.title,
         description: todoToUpdate.description,
-        completed: !currentStatus,
-        status: !currentStatus ? 'COMPLETED' : 'TODO'
+        status: newStatus,
+        dueDate: todoToUpdate.dueDate
       });
       showToast(`Đã đánh dấu ${actionText.toLowerCase()}!`);
     } catch (err) {
@@ -230,7 +230,7 @@ const TodoList: React.FC = () => {
                     </div>
                     <TodoItem
                       todo={todo}
-                      onToggle={handleToggle}
+                      onUpdateStatus={handleUpdateStatus}
                       onDelete={handleDelete}
                       onEdit={openEditForm}
                       isPast={isPast}
